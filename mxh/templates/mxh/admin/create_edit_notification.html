@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if is_edit %}Chỉnh sửa{% else %}Tạo{% endif %} thông báo - Lotteria</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'mxh/styles/home.css' %}">
+    <link rel="stylesheet" href="{% static 'mxh/styles/admin.css' %}">
+    <script src="{% static 'mxh/script/admin.js' %}"></script>
+</head>
+<body>
+    {% include 'mxh/includes/Header_admin.html' %}
+
+    <div class="main">
+        {% include 'mxh/includes/Sidebar_admin.html' %}
+
+        <div class="content">
+            <div class="form-container">
+                <div class="form-header">
+                    <div class="form-icon">
+                        <i class="fas {% if is_edit %}fa-edit{% else %}fa-bullhorn{% endif %}"></i>
+                    </div>
+                    <h2>{% if is_edit %}CHỈNH SỬA{% else %}TẠO{% endif %} THÔNG BÁO</h2>
+                </div>
+
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <div class="form-group">
+                        <label for="title">Tiêu đề:</label>
+                        <input type="text" id="title" name="title" class="form-control"
+                            placeholder="Nhập tiêu đề của thông báo"
+                            value="{% if is_edit %}{{ notification.title }}{% else %}{{ form.title.value|default:'' }}{% endif %}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="content">Nội dung:</label>
+                        <textarea id="content" name="content" class="form-control" rows="5"
+                            placeholder="Nhập nội dung thông báo tại đây..." required>{% if is_edit %}{{ notification.content }}{% else %}{{ form.content.value|default:'' }}{% endif %}</textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Gửi đến:</label>
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="recipient_type" value="all"
+                                    {% if is_edit %}
+                                        {% if notification.is_global %}checked{% endif %}
+                                    {% else %}
+                                        checked
+                                    {% endif %}
+                                    onchange="toggleDepartments()">
+                                Tất cả nhân viên
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="recipient_type" value="department"
+                                    {% if is_edit and not notification.is_global %}checked{% endif %}
+                                    onchange="toggleDepartments()">
+                                Chọn bộ phận
+                            </label>
+                        </div>
+                        {% if form.departments.errors %}
+                        <div class="error-message" style="color: red; margin-top: 5px;">
+                            {% for error in form.departments.errors %}
+                            <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group" id="departments-container"
+                        style="display: {% if is_edit %}{% if not notification.is_global %}block{% else %}none{% endif %}{% else %}{% if form.recipient_type.value == 'department' %}block{% else %}none{% endif %}{% endif %};">
+                        <label>Chọn bộ phận:</label>
+                        <div class="checkbox-group">
+                            {% if is_edit %}
+                                {% for department in departments %}
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="departments" value="{{ department.id }}"
+                                        {% if department.id in selected_departments %}checked{% endif %}>
+                                    {{ department.name }}
+                                </label>
+                                {% endfor %}
+                            {% else %}
+                                {{ form.departments }}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="image">Ảnh đính kèm:</label>
+                        <div class="file-upload">
+                            <input type="file" id="image" name="image" accept="image/*">
+                            <label for="image" class="file-label">
+                                <i class="fas fa-plus"></i>
+                                <span>Chọn tệp</span>
+                            </label>
+                            <div id="file-name" class="file-name">
+                                {% if is_edit and notification.image %}
+                                    {{ notification.image.name|cut:"media/" }}
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        {% if is_edit and notification.image %}
+                        <div class="current-attachment">
+                            <p>Ảnh hiện tại:</p>
+                            <img src="{{ notification.image.url }}" alt="Ảnh đính kèm" class="attachment-preview">
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="remove_image"> Xóa ảnh
+                            </label>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-actions">
+                        <a href="{% url 'admin_notifications' %}" class="cancel-btn">Hủy</a>
+                        <button type="submit" class="save-btn">Lưu</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

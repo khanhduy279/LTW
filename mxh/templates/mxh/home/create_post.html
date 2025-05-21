@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Tạo bài viết</title>
+    <link rel="stylesheet" href="{% static 'mxh/styles/create_post.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+<div class="overlay">
+  <div class="create-post-modal">
+    <div class="header">
+      <h3>Tạo bài viết</h3>
+      <button class="close-btn" onclick="window.history.back()">✖</button>
+    </div>
+
+    <div class="user-info">
+      <img src="{{ request.user.avatar_url|default:'#' }}" alt="Avatar" class="avatar">
+      <div class="user-details">
+        <div class="username">{{ request.user.get_full_name }}</div>
+      </div>
+    </div>
+
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <textarea name="title" class="content-input" placeholder="{{ request.user.last_name }} ơi, bạn đang nghĩ gì thế?"></textarea>
+      <div class="actions">
+        <div class="add-to-post">
+          <span>Thêm vào bài viết của bạn</span>
+          <label for="id_image"><i class="fas fa-image"></i></label>
+          <input type="file" id="id_image" name="avatar_url" accept="image/*" style="display: none;">
+        </div>
+        <button type="submit" class="post-btn">Đăng</button>
+      </div>
+    </form>
+  </div>
+</div>
+</body>
+</html>

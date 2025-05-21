@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ profile_user.username }} - Lotteria</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'mxh/styles/home.css' %}">
+    <link rel="stylesheet" href="{% static 'mxh/styles/profile.css' %}">
+    <script src="{% static 'mxh/script/profile.js' %}"></script>
+</head>
+<body>
+    {% include 'mxh/includes/header.html' %}
+
+    <div class="main">
+        {% include 'mxh/includes/sidebar.html' %}
+        <div class="content">
+            <div class="profile-banner">
+                <img src="https://cdn2.fptshop.com.vn/unsafe/Uploads/images/tin-tuc/177485/Originals/anh-bia-hoa-dep%20(14).jpg"
+                    alt="Cover" class="cover-image">
+                <div class="profile-header">
+                    <div class="profile-header-content">
+                        <div class="profile-info">
+                            <div class="profile-name">
+                                <h2>{{ profile_user.username }}</h2>
+                                <p>{{ post_count }} bài đăng</p>
+                            </div>
+                        </div>
+                        <div class="tab-container">
+                            <button class="tab-button active" id="posts-tab">Bài viết của tôi</button>
+                            <button class="tab-button" id="info-tab">Thông tin cá nhân</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-content" id="posts-content">
+                    <div class="post-list">
+                        {% for post in user_posts  %}
+                        <div class="post">
+                            <div class="user">
+                                <img src="{{ post.user.avatar_url|default:'#' }}" alt="Avatar">
+                                <div class="post-author">
+                                  <span class="author-name">{{ profile_user.username }}</span>
+                                  <span class="post-date">{{ post.created_at|date:"d/m/Y \l\ú\c H:i" }}</span>
+                                </div>
+                              <div class="post-menu">
+                                <button class="menu-button">
+                                  <i class="fas fa-ellipsis-h"></i>
+                                </button>
+                                <div class="dropdown-menu">
+                                  <a href="{% url 'edit_post' post.id %}" class="menu-item edit-post"
+                                     data-post-id="{{ post.id }}"
+                                     data-post-title="{{ post.title|escapejs }}"
+                                     {% if post.avatar_url %}
+                                        data-post-image="{{ post.avatar_url.url }}"
+                                     {% endif %}>
+                                    <i class="fas fa-edit"></i> Chỉnh sửa bài viết
+                                  </a>
+                                  <a href="{% url 'delete_post' post.id %}" class="menu-item delete-post" data-delete-url="{% url 'delete_post' post.id %}">
+                                    <i class="fas fa-trash"></i> Xóa bài viết
+                                  </a>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div class="text">
+                                {{ post.title }}
+                                {% if post.avatar_url %}
+                                    <img class="content-img" src="{{ post.avatar_url.url }}" >
+                                {% endif %}
+                            </div>
+                            <!-- Thống kê tương tác -->
+                            <div class="post-actions">
+                                <button class="like-btn" onclick="toggleLike(this)" data-post-id="{{ post.id }}">
+                                    <i class="fa-heart {% if post.user_liked %}fas{% else %}far{% endif %}"
+                                        style="{% if post.user_liked %}color:red;{% endif %}"></i>
+                                    <div class="like-count">{{ post.like_set.count }}</div>
+                                </button>
+                                <button class="comment-btn" onclick="toggleComment(this)">
+                                    <i class="far fa-comment"></i> Bình luận
+                                </button>
+                                <button class="comment-btn right-align" onclick="toggleCommentList(this)">
+                                    <span>{{ post.comments.count }} bình luận</span>
+                                </button>
+                            </div>
+
+                            <!-- Form bình luận (ẩn ban đầu) -->
+                            <div class="comment-input" style="display: none;">
+                                <div class="d-flex align-items-center mb-3">
+                                    <img src="{{ request.user.avatar_url|default:'#' }}" alt="Avatar" class="me-2"
+                                        width="50" height="50" style="border-radius: 50%; object-fit: cover;">
+                                </div>
+                                <form method="post" action="{% url 'add_comment' post.id %}">
+                                    {% csrf_token %}
+                                    <div class="input-wrapper">
+                                        <textarea name="content" class="comment-box" placeholder="Viết bình luận..."
+                                            required></textarea>
+                                        <button type="submit" class="send-icon"><i
+                                                class="fas fa-paper-plane"></i></button>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <!-- Danh sách bình luận -->
+                            <div class="comments-list" style="display: none; ">
+                                {% for comment in post.comments.all %}
+                                <div class="d-flex align-items-center mb-2">
+                                    <div class="comment">
+                                        <img src="{{ comment.user.avatar_url|default:'#' }}" alt="Avatar"
+                                            class="avatar">
+                                        <div class="comment-content">
+                                            <div class="comment-bubble">
+                                                <div class="username">{{ comment.user.username }}</div>
+                                                <div class="text">{{ comment.content }}</div>
+                                            </div>
+                                            <div class="timestamp">
+                                                {{ comment.created_at|timesince }} trước
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="profile-content hidden" id="info-content">
+                    <div class="user-info-card">
+                        <div class="user-avatar-large">
+                            <img src="{% if profile_user.avatar_url %}{{ profile_user.avatar_url }}{% endif %}"
+                                alt="Avatar">
+                        </div>
+                        <h2 class="user-fullname">{{ profile_user.username }}</h2>
+
+                        <div class="info-grid">
+                            <div class="info-row">
+                                <div class="info-label">Số điện thoại</div>
+                                <div class="info-value">{{ profile_user.phone|default:"Chưa cập nhật" }}</div>
+                            </div>
+                            <div class="info-row">
+                                <div class="info-label">Email</div>
+                                <div class="info-value">{{ profile_user.email }}</div>
+                            </div>
+                            <div class="info-row">
+                                <div class="info-label">Ngày sinh</div>
+                                <div class="info-value">{{ profile_user.birth_date|date:"d/m/Y"|default:"Chưa cập nhật"
+                                    }}</div>
+                            </div>
+                            <div class="info-row">
+                                <div class="info-label">Giới tính</div>
+                                <div class="info-value">
+                                    {% if profile_user.gender == 'male' %}Nam{% elif profile_user.gender == 'female'
+                                    %}Nữ{% else %}Chưa
+                                    rõ{% endif %}
+                                </div>
+                            </div>
+                            <div class="info-row">
+                                <div class="info-label">Chức vụ</div>
+                                <div class="info-value">
+                                    {% if profile_user.role == 'manager' %}Quản lý{% elif profile_user.role == 'admin'
+                                    %}Quản trị viên{%
+                                    else %}Nhân viên{% endif %}
+                                </div>
+                            </div>
+                            <div class="info-row">
+                                <div class="info-label">Bộ phận</div>
+                                <div class="info-value">{{ profile_user.department.name|default:"Chưa cập nhật" }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal" id="edit-post-modal">
+            <form method="post" action="" id="edit-post-form" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="post_id" id="edit-post-id" value="">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>Sửa bài viết</h2>
+                        <button type="button" class="close-button"><i class="fas fa-times"></i></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="edit-post-user">
+                            <img src="{% if profile_user.avatar_url %}{{ profile_user.avatar_url }}{% endif %}"
+                                class="avatar-small">
+                            <span>{{ profile_user.username }}</span>
+                            <input type="hidden" name="remove_image" id="remove-image-input" value="false">
+                        </div>
+                        <textarea name="title" class="post-textarea">{{ post.title}}</textarea>
+                        <input type="hidden" name="avatar_url" id="edit-post-image" value="">
+                        <div class="post-image-preview hidden">
+                            <img src="{{ post.avatar_url.url }}"  alt="Post image">
+                            <button type="button" class="remove-image-button"><i class="fas fa-times"></i></button>
+                        </div>
+                        <button type="button" id="add-image-button">Thêm ảnh</button>
+                        <input type="file" name="new_image" id="new-image-input" accept="image/*" style="display:none">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="post-button">Đăng</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="modal" id="confirm-delete-modal" style="display:none;">
+        <div class="modal-content confirm-delete-content">
+            <h3>Bạn có chắc chắn muốn xóa bài viết này?</h3>
+            <div class="modal-buttons">
+                <button id="confirm-delete-yes" class="btn btn-danger">Xóa</button>
+                <button id="confirm-delete-no" class="btn btn-secondary">Hủy</button>
+            </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        function toggleLike(btn) {
+            const postId = btn.getAttribute('data-post-id');
+            $.ajax({
+                url: '/toggle-like/',
+                type: 'POST',
+                data: {
+                    'post_id': postId,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function (response) {
+                    const icon = btn.querySelector('i');
+                    const countSpan = btn.querySelector('.like-count');
+                    if (response.liked) {
+                        icon.classList.remove('far');
+                        icon.classList.add('fas');
+                        icon.style.color = 'red';
+                    } else {
+                        icon.classList.remove('fas');
+                        icon.classList.add('far');
+                        icon.style.color = '';  // hoặc 'inherit' hoặc xóa màu để trở về mặc định
+                    }
+
+                    countSpan.textContent = response.like_count;
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

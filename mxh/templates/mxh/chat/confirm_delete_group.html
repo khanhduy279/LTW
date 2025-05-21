@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Xóa nhóm</title>
+     <link rel="stylesheet" href="{% static 'mxh/styles/confirm_delete_group.css' %}">
+</head>
+<body>
+    <div class="modal">
+        <div class="modal-header">
+          <span>Xóa nhóm</span>
+          <button class="close-btn" onclick="window.location.href='{% url 'group_chat_list' %}'">✕</button>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <label for="group_name">Tên nhóm</label>
+            <input type="text" id="group_name" name="group_name" value="{{ group.group_name }}" readonly />
+
+            <p>Bạn có chắc chắn muốn xóa nhóm này không?</p>
+
+            <div class="btn-group">
+                <button type="submit" class="btn-delete">Xóa nhóm</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

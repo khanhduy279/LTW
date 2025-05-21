@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Thêm người</title>
+    <link rel="stylesheet" href="{% static 'mxh/styles/add_member.css' %}">
+</head>
+<body>
+<div class="modal">
+    <div class="modal-header">
+        <h2>Thêm người</h2>
+        <button class="close-btn" onclick="window.history.back()">✕</button>
+    </div>
+
+    <form method="GET" action="{% url 'search_employees_add' %}" id="search-form">
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" name="q" id="search-input" placeholder="Tìm kiếm..." value="{{ query }}">
+        </div>
+    </form>
+
+    <div class="suggestion-list">
+        <h3>Gợi ý</h3>
+        <form method="POST">
+            {% csrf_token %}
+            <ul class="user-list">
+                {% for user in users %}
+                    <li>
+                        <label>
+                            <img src="{{other_user.avatar_url }}" alt="{{ user.get_full_name }}">
+                            <span>{{ user.get_full_name }}</span>
+                            <input type="radio" name="selected_user" value="{{ user.id }}">
+                            <span class="custom-radio"></span>
+                        </label>
+                    </li>
+                {% endfor %}
+            </ul>
+
+            <button type="submit" class="add-btn" >Thêm người</button>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

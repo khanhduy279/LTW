@@ -1,0 +1,95 @@
+body {
+            font-family: Arial, sans-serif;
+            background: rgba(0,0,0,0.3);
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal {
+    max-width: 400px;
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px 20px 20px 20px; /* giữ padding trái phải */
+    box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+    position: relative; /* cho phép con position:absolute */
+}
+
+.close-btn {
+  background: transparent;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #666;
+    line-height: 1;
+
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 0 10px;
+}
+
+       .modal-header {
+   display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 15px;
+    position: relative;
+}
+
+
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        input[readonly] {
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+            color: #555;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+        }
+        .btn-group {
+            display: flex;
+            justify-content: space-between;
+        }
+        button {
+            padding: 10px 16px;
+            border-radius: 8px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            flex: 1;
+            margin-right: 10px;
+        }
+        button:last-child {
+            margin-right: 0;
+        }
+        .btn-delete {
+            background-color: #e53e3e;
+            color: white;
+        }
+        .btn-delete:hover {
+            background-color: #c53030;
+        }
+        .btn-cancel {
+            background-color: #ccc;
+            color: #333;
+            text-decoration: none;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .btn-cancel:hover {
+            background-color: #bbb;
+        }

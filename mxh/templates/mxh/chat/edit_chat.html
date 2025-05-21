@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Đổi tên đoạn chat</title>
+    <link rel="stylesheet" href="{% static 'mxh/styles/chat_edit.css' %}">
+</head>
+<body>
+<div class="overlay">
+    <div class="modal">
+        <div class="modal-header">
+            <h2>Đổi tên đoạn chat</h2>
+        </div>
+        <p class="note">Mọi người đều biết khi tên nhóm chat thay đổi.</p>
+
+        <form method="POST" id="edit-group-form">
+            {% csrf_token %}
+            <label for="group_name" class="label-input">Tên đoạn chat</label>
+            <input
+                id="group_name"
+                type="text"
+                name="group_name"
+                maxlength="500"
+                value="{{ group.group_name }}"
+                required
+                autocomplete="off"
+            >
+            <div class="footer-buttons">
+                <button type="button" class="cancel-btn" onclick="window.history.back()">Hủy</button>
+                <button type="submit" class="save-btn">Lưu</button>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>

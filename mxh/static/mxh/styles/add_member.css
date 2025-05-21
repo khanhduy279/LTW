@@ -1,0 +1,126 @@
+body {
+    font-family: Arial, sans-serif;
+    background: rgba(0, 0, 0, 0.3);
+    margin: 0;
+    height: 100vh;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal {
+    width: 400px;
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.close-btn {
+    background: #eee;
+    border: none;
+    font-size: 18px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.search-box {
+    display: flex;
+    justify-content: center;
+
+}
+
+.search-box input {
+    width: 75%;
+    padding: 10px 16px;
+    border-radius: 20px;
+    border: 1px solid #ccc;
+    outline: none;
+}
+
+
+.no-selection {
+    text-align: center;
+    color: #888;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.suggestion-list h3 {
+    margin-bottom: 10px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.user-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 220px;
+    overflow-y: auto;
+}
+
+.user-list li {
+    margin-bottom: 10px;
+}
+
+.user-list label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.user-list img {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+}
+
+.user-list input[type="radio"] {
+    display: none;
+}
+
+.custom-radio {
+    width: 16px;
+    height: 16px;
+    border: 2px solid #999;
+    border-radius: 50%;
+    display: inline-block;
+    position: relative;
+}
+
+.user-list input[type="radio"]:checked + .custom-radio {
+    border-color: #1877f2;
+    background: #1877f2;
+}
+
+.add-btn {
+    margin-top: 16px;
+    width: 100%;
+    background: #1877f2;
+    color: #fff;
+    border: none;
+    padding: 10px;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.add-btn:disabled {
+    background: #ddd;
+    color: #aaa;
+    cursor: not-allowed;
+}
