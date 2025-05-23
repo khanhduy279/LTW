@@ -86,6 +86,7 @@
 .search-result-item .user-info {
   display: flex;
   align-items: center;
+  flex: 1;
 }
 
 .default-avatar {
@@ -153,6 +154,8 @@
   cursor: pointer;
   font-size: 14px;
   transition: all 0.3s ease;
+  flex-shrink: 0;
+  margin-left: 10px;
 }
 
 .btn-primary {

@@ -61,21 +61,26 @@
             <div class="search-results-container" id="search-results-popup" {% if not query %}style="display: none;"{% endif %}>
                 {% if users %}
                 {% for user in users %}
-                <div class="search-result-item">
-                    <div class="user-info">
-                        <div class="avatar">
-                            {% if user.avatar_url %}
-                                <img src="{{ user.avatar_url }}" alt="{{ user.username }}">
-                            {% else %}
-                                <div class="default-avatar">
-                                    {{ user.first_name|first|upper }}{{ user.last_name|first|upper }}
-                                </div>
-                            {% endif %}
+
+                    <div class="search-result-item">
+                        <a href="{% url 'start_chat' user.id %}" class="search-result-item-link"  style="text-decoration: none;">
+                        <div class="user-info">
+                            <div class="avatar">
+                                {% if user.avatar_url %}
+                                    <img src="{{ user.avatar_url }}" alt="{{ user.username }}">
+                                {% else %}
+                                    <div class="default-avatar">
+                                        {{ user.first_name|first|upper }}{{ user.last_name|first|upper }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="user-name">{{ user.first_name }} {{ user.last_name }}</div>
                         </div>
-                        <div class="user-name">{{ user.first_name }} {{ user.last_name }}</div>
+                        </a>
+                        <button class="friend-btn btn-primary" data-user-id="{{ user.id }}" data-action="send-request">Kết bạn</button>
+
                     </div>
-                    <button class="friend-btn btn-primary" data-user-id="{{ user.id }}" data-action="send-request">Kết bạn</button>
-                </div>
+
                 {% endfor %}
 
                 <div class="view-all">

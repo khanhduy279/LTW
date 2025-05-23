@@ -26,43 +26,176 @@
       </div>
 
       <div id="personal-content">
-              {% for notification in personal_notifications %}
-              <div class="profile {% if notification.is_read %}read{% else %}unread{% endif %} {% if 'Lời mời kết bạn' in notification.title %}friend-request-notification{% endif %}">
-                <div class="avatar">
-                  {% if notification.sender and notification.sender.avatar_url %}
-                  <img src="{{ notification.sender.avatar_url }}" alt="Avatar" class="avatar-img">
-                  {% else %}
-                  <img src="{% static 'mxh/images/default_avatar.png' %}" alt="Avatar mặc định" class="avatar-img">
-                  {% endif %}
+        {% for notification in personal_notifications %}
+        <div class="profile {% if notification.is_read %}read{% else %}unread{% endif %}" id="notification-{{ notification.id }}">
+          <div class="avatar">
+            {% if notification.sender and notification.sender.avatar_url %}
+            <img src="{{ notification.sender.avatar_url }}" alt="Avatar" class="avatar-img">
+            {% else %}
+            <img src="{% static 'mxh/images/default_avatar.png' %}" alt="Avatar mặc định" class="avatar-img">
+            {% endif %}
+          </div>
 
-                </div>
+          <div class="info">
+            <p class="name">{{ notification.sender.username }}</p>
+            <p>{{ notification.content }}</p>
+          </div>
 
-                <div class="info">
-                  <p class="name">{{ notification.sender.username }}</p>
-                  <p>{{ notification.content }}</p>
+          <p class="time">{{ notification.created_at|date:'d/m/Y' }}</p>
 
-                  {% if 'Lời mời kết bạn' in notification.title and not notification.is_read %}
-                    {% with friend_request=notification.sender.friend_requests_sent.all|first %}
-                      {% if friend_request %}
-                      <div class="friend-response-buttons">
-                        <button class="accept-btn" data-request-id="{{ friend_request.id }}">Đồng ý</button>
-                        <button class="reject-btn" data-request-id="{{ friend_request.id }}">Từ chối</button>
-                      </div>
-                      {% endif %}
-                    {% endwith %}
-                  {% endif %}
-                </div>
-                <p class="time">{{ notification.created_at|date:'d/m/Y' }}</p>
+          {% if 'Lời mời kết bạn' in notification.title and not notification.is_read %}
+            {% with friend_request=notification.sender.friend_requests_sent.all|first %}
+              {% if friend_request and friend_request.receiver == user and friend_request.status == 'pending' %}
+              <div class="friend-request-actions">
+                <button class="btn-dong-y" onclick="respondFriendRequest('{{ friend_request.id }}', 'accept')">
+                  <i class="fas fa-check"></i> Đồng ý
+                </button>
+                <button class="btn-tu-choi" onclick="respondFriendRequest('{{ friend_request.id }}', 'reject')">
+                  <i class="fas fa-times"></i> Từ chối
+                </button>
               </div>
-              {% empty %}
-              <p>Không có thông báo cá nhân nào.</p>
-              {% endfor %}
-            </div>
-
-
+              {% endif %}
+            {% endwith %}
+          {% endif %}
+        </div>
+        {% empty %}
+        <p>Không có thông báo cá nhân nào.</p>
+        {% endfor %}
+      </div>
     </div>
   </div>
 
+  <script>
+    function respondFriendRequest(requestId, action) {
+      // Disable buttons to prevent double-click
+      const notificationElement = document.querySelector(`button[onclick*="${requestId}"]`).closest('.profile');
+      const buttons = notificationElement.querySelectorAll('button');
+      buttons.forEach(btn => {
+        btn.disabled = true;
+        btn.style.opacity = '0.6';
+      });
+
+      // Create form data
+      const formData = new FormData();
+      formData.append('request_id', requestId);
+      formData.append('action', action);
+
+      // Get CSRF token
+      const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+      // Send AJAX request
+      fetch('{% url "respond_friend_request" %}', {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': csrfToken
+        },
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.status === 'success') {
+          const actionsContainer = notificationElement.querySelector('.friend-request-actions');
+
+          if (action === 'accept') {
+            // Thay thế nút bằng thông báo đã chấp nhận
+            actionsContainer.innerHTML = `
+              <button class="btn-ket-ban" style="background-color: #888; cursor: default;">
+                <i class="fas fa-user-check"></i> Đã chấp nhận
+              </button>
+            `;
+
+            // Đánh dấu thông báo là đã đọc
+            notificationElement.classList.remove('unread');
+            notificationElement.classList.add('read');
+
+            // Giảm số lượng thông báo chưa đọc
+            updateNotificationCount();
+          } else if (action === 'reject') {
+            // Thay thế nút bằng nút kết bạn
+            actionsContainer.innerHTML = `
+              <button class="btn-ket-ban" onclick="sendFriendRequest('${data.sender_id}')">
+                <i class="fas fa-user-plus"></i> Kết bạn
+              </button>
+            `;
+
+            // Đánh dấu thông báo là đã đọc
+            notificationElement.classList.remove('unread');
+            notificationElement.classList.add('read');
+
+            // Giảm số lượng thông báo chưa đọc
+            updateNotificationCount();
+          }
+        } else {
+          // Re-enable buttons on error
+          buttons.forEach(btn => {
+            btn.disabled = false;
+            btn.style.opacity = '1';
+          });
+          alert('Có lỗi xảy ra: ' + data.message);
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        // Re-enable buttons on error
+        buttons.forEach(btn => {
+          btn.disabled = false;
+          btn.style.opacity = '1';
+        });
+        alert('Có lỗi xảy ra khi xử lý yêu cầu');
+      });
+    }
+
+    function sendFriendRequest(userId) {
+      // Create form data
+      const formData = new FormData();
+      formData.append('user_id', userId);
+
+      // Get CSRF token
+      const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+      // Send AJAX request
+      fetch('{% url "send_friend_request" %}', {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': csrfToken
+        },
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.status === 'success') {
+          // Thay đổi nút thành "Đã gửi lời mời"
+          const button = document.querySelector(`button[onclick*="${userId}"]`);
+          button.innerHTML = '<i class="fas fa-user-clock"></i> Đã gửi lời mời';
+          button.disabled = true;
+          button.style.opacity = '0.6';
+          button.style.backgroundColor = '#888';
+          button.style.cursor = 'default';
+          button.onclick = null;
+        } else {
+          alert('Có lỗi xảy ra: ' + data.message);
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Có lỗi xảy ra khi gửi lời mời kết bạn');
+      });
+    }
+
+    function updateNotificationCount() {
+      const notificationBadge = document.querySelector('.tab.active .notification');
+      if (notificationBadge) {
+        let count = parseInt(notificationBadge.textContent) - 1;
+        if (count <= 0) {
+          notificationBadge.style.display = 'none';
+        } else {
+          notificationBadge.textContent = count;
+        }
+      }
+    }
+  </script>
+
+  {% csrf_token %}
 </body>
 
 </html>

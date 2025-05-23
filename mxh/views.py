@@ -1107,14 +1107,18 @@ def respond_friend_request(request):
             )
 
             for notification in friend_request_notifications:
-                user_notification = UserNotification.objects.get(
+                user_notification = UserNotification.objects.filter(
                     notification=notification,
                     user=request.user
-                )
-                user_notification.is_read = True
-                user_notification.save()
+                ).first()
+                if user_notification:
+                    user_notification.is_read = True
+                    user_notification.save()
 
-            return JsonResponse({'status': 'success'})
+            return JsonResponse({
+                'status': 'success',
+                'sender_id': friend_request.sender.id
+            })
 
         except Friend.DoesNotExist:
             return JsonResponse({'status': 'error', 'message': 'Không tìm thấy lời mời kết bạn'})
