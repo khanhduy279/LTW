@@ -32,22 +32,22 @@ from .models import GroupChat, GroupMember
 
 
 def login_view(request):
-    if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            login(request, user)
-            if user.is_superuser:
-                return redirect('admin_home')
-            else:
-                return redirect('user_home')
-    return render(request, 'mxh/login/login.html')
-
+   if request.method == 'POST':
+       username = request.POST.get('username')
+       password = request.POST.get('password')
+       user = authenticate(request, username=username, password=password)
+       if user is not None:
+           login(request, user)
+           if user.is_superuser:
+               return redirect('admin_post_management')  # Chuyển đến trang quản lý bài viết
+           else:
+               return redirect('user_home')
+   return render(request, 'mxh/login/login.html')
 
 @login_required
 def admin_home(request):
-    return render(request, 'mxh/chat/chat_admin.html')
+    # Chuyển hướng đến trang quản lý bài viết
+    return redirect('admin_post_management')
 
 
 from django.db.models import Exists, OuterRef, Q
@@ -1233,3 +1233,11 @@ def admin_post_management(request):
     }
 
     return render(request, 'mxh/admin/post_management.html', context)
+
+@login_required
+def logout_view(request):
+    """
+    View để xử lý đăng xuất
+    """
+    logout(request)
+    return redirect('login')

@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'mxh/styles/admin.css' %}">
 </head>
 <body>
-<!-- templates/mxh/includes/header.html -->
+<!-- templates/mxh/includes/header_admin.html -->
 <div class="header">
     <div class="logo-block">
       <img src="https://res.cloudinary.com/dkeeovlbv/image/upload/v1744526525/vwakjgyc2qavvcoycnqw.jpg" alt="Logo">
@@ -33,9 +35,9 @@
     <div class="user-info">
       <span>Admin</span>
       <img src="https://i.pravatar.cc/150?img=1" alt="Avatar">
-      <button class="logout-btn" title="Đăng xuất">
+      <a href="{% url 'logout' %}" class="logout-btn" title="Đăng xuất">
         <i class="fas fa-sign-out-alt"></i>
-      </button>
+      </a>
     </div>
   </div>
 
