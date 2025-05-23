@@ -1,0 +1,282 @@
+/* Post Management Styles */
+.post-management-container {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  margin: 20px;
+}
+
+.post-management-header {
+  background: #d3d3d3;
+  color: Black;
+  padding: 25px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.post-management-header h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.post-management-header h2 i {
+  margin-right: 10px;
+  color: #ffd700;
+}
+
+.stats {
+  display: flex;
+  gap: 20px;
+}
+
+.total-posts {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: 500;
+  backdrop-filter: blur(10px);
+}
+
+.posts-feed {
+  padding: 20px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.post-item {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.post-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.post-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background: white;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid #667eea;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.default-avatar {
+  width: 100%;
+  height: 100%;
+  background: #d3d3d3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 18px;
+}
+
+.user-details h4 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.post-time {
+  font-size: 12px;
+  color: #6c757d;
+}
+
+.id-badge {
+  background: gray;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 15px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.post-content {
+  padding: 20px;
+  background: white;
+}
+
+.post-content p {
+  margin: 0 0 15px 0;
+  font-size: 15px;
+  line-height: 1.6;
+  color: #2c3e50;
+}
+
+.post-image {
+  margin-top: 15px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.post-image img {
+  width: 100%;
+  height: auto;
+  max-height: 400px;
+  object-fit: cover;
+}
+
+.post-stats {
+  display: flex;
+  gap: 20px;
+  padding: 15px 20px;
+  background: #f8f9fa;
+  border-top: 1px solid #e9ecef;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #6c757d;
+  font-size: 14px;
+}
+
+.stat-item i {
+  color: #667eea;
+}
+
+.comments-preview {
+  padding: 15px 20px;
+  background: white;
+  border-top: 1px solid #e9ecef;
+}
+
+.comments-preview h5 {
+  margin: 0 0 10px 0;
+  font-size: 14px;
+  color: #495057;
+  font-weight: 600;
+}
+
+.comment-item {
+  margin-bottom: 8px;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.comment-item strong {
+  color: #667eea;
+}
+
+.comment-item small {
+  color: #6c757d;
+  margin-left: 8px;
+}
+
+.more-comments {
+  text-align: center;
+  margin-top: 10px;
+}
+
+.more-comments small {
+  color: #6c757d;
+  font-style: italic;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #6c757d;
+}
+
+.empty-state i {
+  font-size: 64px;
+  color: #dee2e6;
+  margin-bottom: 20px;
+}
+
+.empty-state h3 {
+  margin: 0 0 10px 0;
+  color: #495057;
+}
+
+.empty-state p {
+  margin: 0;
+  font-size: 14px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .post-management-container {
+    margin: 10px;
+  }
+
+  .post-management-header {
+    padding: 20px;
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+
+  .posts-feed {
+    padding: 15px;
+  }
+
+  .post-header {
+    padding: 12px 15px;
+  }
+
+  .post-content {
+    padding: 15px;
+  }
+
+  .post-stats {
+    padding: 12px 15px;
+    flex-wrap: wrap;
+  }
+}
+
+/* Custom Scrollbar */
+.posts-feed::-webkit-scrollbar {
+  width: 6px;
+}
+
+.posts-feed::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.posts-feed::-webkit-scrollbar-thumb {
+  background: #d3d3d3;
+  border-radius: 3px;
+}
+
+.posts-feed::-webkit-scrollbar-thumb:hover {
+  background: gray;
+}

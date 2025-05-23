@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý tin nhắn - Lotteria</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'mxh/styles/home.css' %}">
+    <link rel="stylesheet" href="{% static 'mxh/styles/admin.css' %}">
+    <link rel="stylesheet" href="{% static 'mxh/styles/chat_management.css' %}">
+    <script src="{% static 'mxh/script/admin.js' %}"></script>
+</head>
+<body>
+    {% include 'mxh/includes/Header_admin.html' %}
+
+    <div class="main">
+        {% include 'mxh/includes/Sidebar_admin.html' %}
+
+        <div class="content">
+            <div class="chat-management-container">
+                <div class="chat-management-header">
+                    <h2>Danh sách tổng quan nhóm chat</h2>
+                </div>
+
+                <div class="chat-management-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>STT</th>
+                                <th>Tên nhóm</th>
+                                <th>Trưởng nhóm</th>
+                                <th>Số thành viên</th>
+                                <th>Ngày tạo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for group in groups %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ group.group_name }}</td>
+                                <td>{{ group.created_by.username }}</td>
+                                <td>{{ group.member_count }}</td>
+                                <td>{{ group.created_at|date:"d/m/Y" }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="empty-message">Chưa có nhóm chat nào được tạo.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

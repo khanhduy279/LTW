@@ -10,7 +10,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.urls import reverse
 from django.utils import timezone
-from django.db.models import Q, Exists, OuterRef, Subquery, Max, F
+from django.db.models import Q, Exists, OuterRef, Subquery, Max, F, Count
 from django.contrib.auth import get_user_model, authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 
@@ -1186,3 +1186,50 @@ def get_friend_status(request, user_id):
         return JsonResponse({'status': 'error', 'message': 'Không tìm thấy người dùng'})
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)})
+
+
+from django.shortcuts import render, redirect
+from .models import GroupChat
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.db.models import Count
+from .models import GroupMember
+
+
+def is_admin(user):
+    return user.is_staff
+
+
+@login_required
+@user_passes_test(is_admin)
+def admin_chat_management(request):
+    # Lấy tất cả các nhóm chat với annotation để đếm số lượng thành viên
+    groups = GroupChat.objects.annotate(
+        member_count=Count('groupmember')
+    ).order_by('-created_at')
+
+    return render(request, 'mxh/admin/chat_management.html', {
+        'groups': groups
+    })
+
+
+@login_required
+@user_passes_test(is_admin)
+def admin_post_management(request):
+    """
+    View để hiển thị trang quản lý bài viết cho admin
+    """
+    # Lấy tất cả bài viết với thông tin liên quan
+    posts = Post.objects.select_related('user').prefetch_related(
+        'comments__user', 'like_set'
+    ).order_by('-created_at')
+
+    # Thêm thống kê cho mỗi bài viết
+    for post in posts:
+        post.like_count = post.like_set.count()
+        post.comment_count = post.comments.count()
+
+    context = {
+        'posts': posts,
+    }
+
+    return render(request, 'mxh/admin/post_management.html', context)

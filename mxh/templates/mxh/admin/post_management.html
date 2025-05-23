@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý bài viết - Lotteria</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'mxh/styles/home.css' %}">
+    <link rel="stylesheet" href="{% static 'mxh/styles/admin.css' %}">
+    <link rel="stylesheet" href="{% static 'mxh/styles/post_management.css' %}">
+</head>
+<body>
+    {% include 'mxh/includes/Header_admin.html' %}
+
+    <div class="main">
+        {% include 'mxh/includes/Sidebar_admin.html' %}
+
+        <div class="content">
+            <div class="post-management-container">
+                <div class="post-management-header">
+                    <h2><i class="fas fa-newspaper"></i> Quản lý bài viết</h2>
+                    <div class="stats">
+                        <span class="total-posts">Tổng: {{ posts.count }} bài viết</span>
+                    </div>
+                </div>
+
+                <div class="posts-feed">
+                    {% for post in posts %}
+                    <div class="post-item">
+                        <div class="post-header">
+                            <div class="user-info">
+                                <div class="avatar">
+                                    {% if post.user.avatar_url %}
+                                        <img src="{{ post.user.avatar_url.url }}" alt="{{ post.user.username }}">
+                                    {% else %}
+                                        <div class="default-avatar">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="user-details">
+                                    <h4>{{ post.user.username }}</h4>
+                                    <span class="post-time">{{ post.created_at|date:"d/m/Y H:i" }}</span>
+                                </div>
+                            </div>
+                            <div class="post-id">
+                                <span class="id-badge">#{{ post.id }}</span>
+                            </div>
+                        </div>
+
+                        <div class="post-content">
+                            <p>{{ post.title }}</p>
+                            {% if post.avatar_url %}
+                                <div class="post-image">
+                                    <img src="{{ post.avatar_url.url }}" alt="Post Image">
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="post-stats">
+                            <div class="stat-item">
+                                <i class="fas fa-heart"></i>
+                                <span>{{ post.like_count }} lượt thích</span>
+                            </div>
+                            <div class="stat-item">
+                                <i class="fas fa-comment"></i>
+                                <span>{{ post.comment_count }} bình luận</span>
+                            </div>
+                        </div>
+
+                        {% if post.comments.exists %}
+                        <div class="comments-preview">
+                            <h5>Bình luận gần đây:</h5>
+                            {% for comment in post.comments.all|slice:":3" %}
+                            <div class="comment-item">
+                                <strong>{{ comment.user.username }}:</strong>
+                                <span>{{ comment.content }}</span>
+                                <small>{{ comment.created_at|date:"d/m H:i" }}</small>
+                            </div>
+                            {% endfor %}
+                            {% if post.comments.count > 3 %}
+                            <div class="more-comments">
+                                <small>và {{ post.comments.count|add:"-3" }} bình luận khác...</small>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% empty %}
+                    <div class="empty-state">
+                        <i class="fas fa-newspaper"></i>
+                        <h3>Chưa có bài viết nào</h3>
+                        <p>Hiện tại chưa có nhân viên nào đăng bài viết.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

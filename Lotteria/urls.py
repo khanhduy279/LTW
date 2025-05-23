@@ -43,6 +43,8 @@ urlpatterns = [
     path('group/<int:group_id>/add_message/', views.add_group_message, name='add_group_message'),
     path('search_add/', views.search_employees_add, name='search_employees_add'),
 
+    path('admin_home/chat-management/', views.admin_chat_management, name='admin_chat_management'),
+    path('admin_home/post-management/', views.admin_post_management, name='admin_post_management'),
     path('admin_home/notifications/', views.admin_notifications, name='admin_notifications'),
     path('admin_home/notifications/create/', views.admin_notification_create, name='admin_notification_create'),
     path('admin_home/notifications/edit/<int:notification_id>/', views.admin_notification_edit, name='admin_notification_edit'),
@@ -79,4 +81,3 @@ urlpatterns = [
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-

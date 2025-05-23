@@ -8,8 +8,8 @@
 <!-- templates/mxh/includes/sidebar.html -->
 <div class="sidebar">
     <nav>
-        <a href="#"><i class="fas fa-home"></i> Quản lý bài viết</a>
-        <a href="{% url 'admin_notifications' %}"><i class="fas fa-comment-dots"></i> Quản lý tin nhắn</a>
+        <a href="{% url 'admin_post_management' %}" class="{% if request.resolver_match.url_name == 'admin_post_management' %}active{% endif %}"><i class="fas fa-home"></i> Quản lý bài viết</a>
+        <a href="{% url 'admin_chat_management' %}" class="{% if request.resolver_match.url_name == 'admin_chat_management' %}active{% endif %}"><i class="fas fa-comments"></i> Quản lý tin nhắn</a>
         <a href="{% url 'admin_notifications' %}" class="{% if request.resolver_match.url_name == 'admin_notifications' %}active{% endif %}"><i class="fas fa-bell"></i> Quản lý thông báo</a>
     </nav>
 </div>
