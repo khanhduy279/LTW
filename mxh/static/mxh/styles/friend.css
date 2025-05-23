@@ -1,0 +1,114 @@
+/* Nút kết bạn */
+.friend-btn {
+  padding: 5px 10px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.friend-btn[data-action="send-request"] {
+  background-color: #4267b2;
+  color: white;
+}
+
+.friend-btn[data-action="cancel-request"] {
+  background-color: #6c757d;
+  color: white;
+}
+
+.friend-btn[data-action="unfriend"] {
+  background-color: #dc3545;
+  color: white;
+}
+
+.friend-btn:hover {
+  opacity: 0.9;
+}
+
+/* Nút phản hồi lời mời kết bạn */
+.friend-response-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 5px;
+}
+
+.accept-btn,
+.reject-btn {
+  padding: 5px 10px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.accept-btn {
+  background-color: #28a745;
+  color: white;
+}
+
+.reject-btn {
+  background-color: #dc3545;
+  color: white;
+}
+
+.accept-btn:hover,
+.reject-btn:hover {
+  opacity: 0.9;
+}
+
+/* Danh sách bạn bè */
+.friends-list {
+  margin-top: 20px;
+}
+
+.friends-list .friend-item {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.friends-list .friend-item:last-child {
+  border-bottom: none;
+}
+
+.friends-list .friend-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-right: 15px;
+}
+
+.friends-list .friend-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.friends-list .friend-info {
+  flex-grow: 1;
+}
+
+.friends-list .friend-name {
+  font-weight: bold;
+  margin-bottom: 3px;
+}
+
+.friends-list .friend-department {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.friends-list .friend-actions {
+  margin-left: 10px;
+}
+
+/* Thông báo kết bạn */
+.friend-request-notification {
+  background-color: #f8f9fa;
+  border-left: 3px solid #4267b2;
+}

@@ -26,27 +26,39 @@
       </div>
 
       <div id="personal-content">
-        {% for notification in personal_notifications %}
-        <div class="profile {% if notification.is_read %}read{% else %}unread{% endif %}">
-          <div class="avatar">
-            {% if notification.sender and notification.sender.avatar_url %}
-            <img src="{{ notification.sender.avatar_url }}" alt="Avatar" class="avatar-img">
-            {% else %}
-            <img src="{% static 'mxh/images/default_avatar.png' %}" alt="Avatar mặc định" class="avatar-img">
-            {% endif %}
+              {% for notification in personal_notifications %}
+              <div class="profile {% if notification.is_read %}read{% else %}unread{% endif %} {% if 'Lời mời kết bạn' in notification.title %}friend-request-notification{% endif %}">
+                <div class="avatar">
+                  {% if notification.sender and notification.sender.avatar_url %}
+                  <img src="{{ notification.sender.avatar_url }}" alt="Avatar" class="avatar-img">
+                  {% else %}
+                  <img src="{% static 'mxh/images/default_avatar.png' %}" alt="Avatar mặc định" class="avatar-img">
+                  {% endif %}
 
-          </div>
+                </div>
 
-          <div class="info">
-            <p class="name">{{ notification.sender.username }}</p>
-            <p>{{ notification.content }}</p>
-          </div>
-          <p class="time">{{ notification.created_at|date:'d/m/Y' }}</p>
-        </div>
-        {% empty %}
-        <p>Không có thông báo cá nhân nào.</p>
-        {% endfor %}
-      </div>
+                <div class="info">
+                  <p class="name">{{ notification.sender.username }}</p>
+                  <p>{{ notification.content }}</p>
+
+                  {% if 'Lời mời kết bạn' in notification.title and not notification.is_read %}
+                    {% with friend_request=notification.sender.friend_requests_sent.all|first %}
+                      {% if friend_request %}
+                      <div class="friend-response-buttons">
+                        <button class="accept-btn" data-request-id="{{ friend_request.id }}">Đồng ý</button>
+                        <button class="reject-btn" data-request-id="{{ friend_request.id }}">Từ chối</button>
+                      </div>
+                      {% endif %}
+                    {% endwith %}
+                  {% endif %}
+                </div>
+                <p class="time">{{ notification.created_at|date:'d/m/Y' }}</p>
+              </div>
+              {% empty %}
+              <p>Không có thông báo cá nhân nào.</p>
+              {% endfor %}
+            </div>
+
 
     </div>
   </div>

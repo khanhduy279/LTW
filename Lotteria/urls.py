@@ -69,6 +69,12 @@ urlpatterns = [
     path('edit_post/<int:post_id>', views.edit_post, name='edit_post'),
     path('delete_post/<int:post_id>/', views.delete_post, name='delete_post'),
     path('post/<int:post_id>/comment-profile/', views.add_comment_profile, name='add_comment_profile'),
+
+    path('send-friend-request/', views.send_friend_request, name='send_friend_request'),
+    path('cancel-friend-request/', views.cancel_friend_request, name='cancel_friend_request'),
+    path('respond-friend-request/', views.respond_friend_request, name='respond_friend_request'),
+    path('unfriend/', views.unfriend, name='unfriend'),
+    path('get-friend-status/<int:user_id>/', views.get_friend_status, name='get_friend_status'),
 ]
 
 if settings.DEBUG:

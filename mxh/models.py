@@ -69,10 +69,21 @@ class Message(models.Model):
     content = models.TextField()
     sent_at = models.DateTimeField(auto_now_add=True)
 
+
 class Friend(models.Model):
-    sender = models.ForeignKey(User, related_name='sent_messages', on_delete=models.CASCADE)
-    receiver = models.ForeignKey(User, related_name='received_messages', on_delete=models.CASCADE)
+    STATUS_CHOICES = [
+        ('pending', 'Đang chờ'),
+        ('accepted', 'Đã chấp nhận'),
+        ('rejected', 'Đã từ chối')
+    ]
+    sender = models.ForeignKey(User, related_name='friend_requests_sent', on_delete=models.CASCADE)
+    receiver = models.ForeignKey(User, related_name='friend_requests_received', on_delete=models.CASCADE)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('sender', 'receiver')
 
 class PrivateChat(models.Model):
     user1 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='chat_user1')

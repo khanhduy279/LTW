@@ -44,11 +44,14 @@ def login_view(request):
                 return redirect('user_home')
     return render(request, 'mxh/login/login.html')
 
+
 @login_required
 def admin_home(request):
     return render(request, 'mxh/chat/chat_admin.html')
 
+
 from django.db.models import Exists, OuterRef, Q
+
 
 @login_required
 def user_home(request):
@@ -92,6 +95,7 @@ def create_post(request):
         form = PostForm()
     return render(request, 'mxh/home/create_post.html', {'form': form})
 
+
 # Bình luận
 @login_required
 def add_comment(request, post_id):
@@ -109,6 +113,7 @@ def add_comment(request, post_id):
             UserNotification.objects.create(notification=notif, user=post.user)
     return redirect('user_home')
 
+
 # Danh sách bình luận
 @login_required
 def post_detail(request, post_id):
@@ -120,18 +125,15 @@ def post_detail(request, post_id):
     }
     return render(request, 'mxh/home/home.html', context)
 
+
 # Tìm kiếm tên và bộ phận
 User = get_user_model()
+
+
 @login_required
 def search_employees(request):
     query = request.GET.get('q', '')
     department_id = request.GET.get('department', '')
-    form = PostForm()
-
-    likes = Like.objects.filter(user=request.user, post=OuterRef('pk'))
-    posts = Post.objects.all().annotate(user_liked=Exists(likes)).order_by('-created_at')
-
-    comments = Comment.objects.all()
 
     users = User.objects.all()
     if query:
@@ -143,8 +145,25 @@ def search_employees(request):
     if department_id:
         users = users.filter(department_id=department_id)
 
-    departments = Department.objects.all()
+    # Nếu là AJAX request, trả về JSON
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        user_list = []
+        for user in users:
+            user_list.append({
+                'id': user.id,
+                'username': user.username,
+                'first_name': user.first_name,
+                'last_name': user.last_name,
+                'avatar_url': user.avatar_url.url if user.avatar_url else None
+            })
+        return JsonResponse({'users': user_list})
 
+    # Nếu không phải AJAX, trả về template như cũ
+    form = PostForm()
+    likes = Like.objects.filter(user=request.user, post=OuterRef('pk'))
+    posts = Post.objects.all().annotate(user_liked=Exists(likes)).order_by('-created_at')
+    comments = Comment.objects.all()
+    departments = Department.objects.all()
     chat = PrivateChat.objects.filter(Q(user1=request.user) | Q(user2=request.user)).first()
 
     context = {
@@ -158,6 +177,7 @@ def search_employees(request):
         'default_chat_id': chat.id if chat else None,
     }
     return render(request, 'mxh/home/home.html', context)
+
 
 # Đếm lượt thích
 @login_required
@@ -190,6 +210,7 @@ def toggle_like(request):
 
     return HttpResponseBadRequest("Invalid request method")
 
+
 @login_required
 def start_chat(request, user_id):
     target_user = get_object_or_404(User, id=user_id)
@@ -203,6 +224,7 @@ def start_chat(request, user_id):
 
     return redirect('chat_room', chat_id=chat.id)
 
+
 # Thêm tin nhắn cá nhân
 @login_required
 def add_message(request, chat_id):
@@ -211,6 +233,7 @@ def add_message(request, chat_id):
         chat = get_object_or_404(PrivateChat, id=chat_id)
         PrivateMessage.objects.create(chat=chat, sender=request.user, content=content)
     return redirect('chat_room', chat_id=chat_id)
+
 
 # Nhắn tin cá nhân
 @login_required
@@ -226,9 +249,7 @@ def chat_room(request, chat_id):
         'chat': chat,
         'messages': messages,
         'other_user': other_user,
-        'chat_'
-        ''
-        'list.css': chat_list,
+        'chat_list': chat_list,
     }
     return render(request, 'mxh/chat/chat.html', context)
 
@@ -247,6 +268,7 @@ def chat_view(request):
         'chat_list': chat_list,
     }
     return render(request, 'mxh/chat/chat_list.html', context)
+
 
 # Tạo nhóm chat
 @login_required
@@ -268,8 +290,10 @@ def create_group(request):
     users = User.objects.exclude(id=request.user.id)
     return render(request, 'mxh/chat/create_chat.html', {'users': users})
 
+
 # Sửa nhóm
 from django.shortcuts import get_object_or_404
+
 
 @login_required
 def edit_group_name(request, group_id):
@@ -300,6 +324,7 @@ def edit_group_name(request, group_id):
     }
     return render(request, 'mxh/chat/edit_chat.html', context)
 
+
 # Thêm mới thành viên
 @login_required
 def add_members_to_group(request, group_id):
@@ -322,6 +347,7 @@ def add_members_to_group(request, group_id):
     }
     return render(request, 'mxh/chat/add_member.html', context)
 
+
 # Xóa nhóm
 @login_required
 def delete_group(request, group_id):
@@ -330,6 +356,7 @@ def delete_group(request, group_id):
         group.delete()
         return redirect('group_chat_list')
     return render(request, 'mxh/chat/confirm_delete_group.html', {'group': group})
+
 
 # Tìm kiếm tên thành viên
 @login_required
@@ -355,6 +382,7 @@ def search_employees_add(request):
     }
     return render(request, 'mxh/chat/add_member.html', context)
 
+
 # Nhắn tin trong group
 @login_required
 def group_chat_room(request, group_id):
@@ -373,6 +401,7 @@ def group_chat_room(request, group_id):
     }
     return render(request, 'mxh/chat/group_chat_room.html', context)
 
+
 # Thêm nhóm mới
 @login_required
 def add_group_message(request, group_id):
@@ -382,7 +411,8 @@ def add_group_message(request, group_id):
         Message.objects.create(group=group, sender=request.user, content=content)
     return redirect('group_chat_room', group_id=group_id)
 
-#Hiển thị danh sách nhóm chat
+
+# Hiển thị danh sách nhóm chat
 @login_required
 def group_chat_list(request):
     user_groups = GroupMember.objects.filter(user=request.user).select_related('group')
@@ -396,9 +426,11 @@ def group_chat_list(request):
     }
     return render(request, 'mxh/chat/group_chat_list.html', context)
 
+
 # Thông báo phía admin
 def is_admin(user):
     return user.is_staff or user.is_superuser
+
 
 @login_required
 @user_passes_test(is_admin)
@@ -408,6 +440,7 @@ def admin_notifications(request):
         'notifications': notifications,
         'unread_notifications': get_unread_count(request.user)
     })
+
 
 # Tạo thông báo admin
 @login_required
@@ -434,7 +467,8 @@ def admin_notification_create(request):
             if not notification.is_global:
                 notification.departments.set(departments_selected)
 
-            users = User.objects.all() if notification.is_global else User.objects.filter(department__in=departments_selected)
+            users = User.objects.all() if notification.is_global else User.objects.filter(
+                department__in=departments_selected)
 
             UserNotification.objects.bulk_create([
                 UserNotification(notification=notification, user=user, is_read=False)
@@ -488,7 +522,8 @@ def admin_notification_edit(request, notification_id):
             # Xóa các user notification cũ
             UserNotification.objects.filter(notification=notification).delete()
 
-            users = User.objects.all() if notification.is_global else User.objects.filter(department__in=departments_selected)
+            users = User.objects.all() if notification.is_global else User.objects.filter(
+                department__in=departments_selected)
 
             UserNotification.objects.bulk_create([
                 UserNotification(notification=notification, user=user, is_read=False)
@@ -512,7 +547,8 @@ def admin_notification_edit(request, notification_id):
         'selected_departments': selected_departments,
     })
 
-#Xóa thông báo admin
+
+# Xóa thông báo admin
 @login_required
 @user_passes_test(is_admin)
 def admin_notification_delete(request, notification_id):
@@ -525,6 +561,7 @@ def admin_notification_delete(request, notification_id):
         messages.success(request, 'Xóa thông báo thành công!')
     return redirect('admin_notifications')
 
+
 @login_required
 def notification_view(request):
     # Lấy thông báo cá nhân
@@ -532,7 +569,6 @@ def notification_view(request):
         usernotification__user=request.user,
         type='personal'
     ).order_by('-created_at')
-
 
     user_notifications = UserNotification.objects.filter(
         user=request.user,
@@ -562,6 +598,7 @@ def notification_view(request):
         'company_unread_count': company_unread_count,
 
     })
+
 
 @login_required
 def notification_company(request):
@@ -605,6 +642,7 @@ def notification_company(request):
         'personal_notifications': personal_notifications
     })
 
+
 @login_required
 def notification_company_detail(request, pk):
     notification = get_object_or_404(Notification, pk=pk, type='company')
@@ -641,6 +679,7 @@ def notification_company_detail(request, pk):
         'selected_tab': 'company'
     })
 
+
 @login_required
 def profile(request, username):
     profile_user = get_object_or_404(User, username=username)
@@ -656,6 +695,7 @@ def profile(request, username):
         'user_posts': user_posts,
         'post_count': post_count,
     })
+
 
 @login_required
 def edit_post(request, post_id):
@@ -677,12 +717,14 @@ def edit_post(request, post_id):
         post.save()
         return redirect('user_profile', username=request.user.username)
 
+
 @login_required
 def delete_post(request, post_id):
     post = get_object_or_404(Post, id=post_id, user=request.user)
     post.delete()
 
     return redirect('user_profile', username=request.user.username)
+
 
 @login_required
 def add_comment_profile(request, post_id):
@@ -705,9 +747,12 @@ def add_comment_profile(request, post_id):
 
     return redirect('user_home')  # fallback nếu không phải POST
 
+
 # Công việc
 from .forms import TaskAssignmentForm
 from .models import Task, TaskAssignment
+
+
 @login_required
 def create_task_view(request):
     if request.method == 'POST':
@@ -726,6 +771,8 @@ def create_task_view(request):
         form = TaskAssignmentForm(user=request.user)
 
     return render(request, 'mxh/task/taskform.html', {'form': form})
+
+
 @login_required
 def task_list_view(request):
     tasks_assigned_by_me = Task.objects.filter(assigned_by=request.user)
@@ -751,11 +798,12 @@ def task_list_view(request):
         'assignments': assignments,  # Truyền assignments vào context
     }
     return render(request, 'mxh/task/task.html', context)
+
+
 @login_required
 def delete_task(request, task_id):
     task = get_object_or_404(Task, id=task_id)
     user = request.user
-
 
     assigned_users = TaskAssignment.objects.filter(task=task).values_list('user', flat=True)
     if task.assigned_by == user or (user.id in assigned_users and task.status == 'completed'):
@@ -763,6 +811,7 @@ def delete_task(request, task_id):
         return redirect('task_view')
 
     return HttpResponseForbidden("Bạn không có quyền xoá task này.")
+
 
 @login_required
 def task_list(request):
@@ -779,7 +828,7 @@ def change_task_status(request, task_id):
     task = get_object_or_404(Task, id=task_id)
 
     if task.assigned_by == request.user or \
-       task.taskassignment_set.filter(user=request.user).exists():
+            task.taskassignment_set.filter(user=request.user).exists():
         if request.method == 'POST':
             if 'status' in request.POST:
                 task.status = 'completed'
@@ -788,6 +837,7 @@ def change_task_status(request, task_id):
             task.save()
 
     return redirect('task_view')
+
 
 @login_required
 def create_proposal(request):
@@ -803,10 +853,13 @@ def create_proposal(request):
         form = TaskProposalForm(user=request.user)
     return render(request, 'mxh/task/proposal/create_proposal.html', {'form': form})
 
+
 @login_required
 def my_proposals(request):
     proposals = TaskProposal.objects.filter(proposer=request.user).order_by('-created_at')
     return render(request, 'mxh/task/proposal/my_proposals.html', {'proposals': proposals})
+
+
 @login_required
 def incoming_proposals(request):
     user = request.user
@@ -816,6 +869,8 @@ def incoming_proposals(request):
     else:
         proposals = TaskProposal.objects.none()
     return render(request, 'mxh/task/proposal/incoming.html', {'proposals': proposals})
+
+
 @login_required
 def review_proposal(request, proposal_id):
     proposal = get_object_or_404(TaskProposal, pk=proposal_id)
@@ -835,6 +890,8 @@ def review_proposal(request, proposal_id):
         form = TaskProposalReviewForm(instance=proposal)
 
     return render(request, 'mxh/task/proposal/review.html', {'form': form, 'proposal': proposal})
+
+
 @login_required
 def create_task_from_proposal(request, proposal_id):
     proposal = get_object_or_404(TaskProposal, pk=proposal_id, status='approved')
@@ -844,7 +901,6 @@ def create_task_from_proposal(request, proposal_id):
         if form.is_valid():
             task = form.save(commit=False)
             task.assigned_by = request.user
-
 
             if not task.image:
                 task.image = proposal.image
@@ -870,6 +926,7 @@ def create_task_from_proposal(request, proposal_id):
         'proposal': proposal
     })
 
+
 # to do list
 @login_required
 def create_todo(request):
@@ -885,6 +942,7 @@ def create_todo(request):
 
     return render(request, 'mxh/task/todo_list.html')
 
+
 @login_required
 def todo_list(request):
     if request.method == 'POST':
@@ -896,6 +954,7 @@ def todo_list(request):
     tasks = TodoList.objects.filter(user=request.user).order_by('-created_at')
     return render(request, 'mxh/task/todo_list.html', {'tasks': tasks})
 
+
 @login_required
 def toggle_status(request, task_id):
     task = get_object_or_404(TodoList, id=task_id, user=request.user)
@@ -903,9 +962,223 @@ def toggle_status(request, task_id):
     task.save()
     return redirect('todo_list')
 
+
 @login_required
-def delete_task(request, task_id):
+def delete_todo_task(request, task_id):
     task = get_object_or_404(TodoList, id=task_id, user=request.user)
     task.delete()
     return redirect('todo_list')
 
+
+# Chức năng kết bạn
+@login_required
+def send_friend_request(request):
+    if request.method == 'POST':
+        user_id = request.POST.get('user_id')
+        if not user_id:
+            return JsonResponse({'status': 'error', 'message': 'Thiếu thông tin người dùng'})
+
+        try:
+            receiver = User.objects.get(id=user_id)
+
+            # Kiểm tra xem đã có lời mời kết bạn nào chưa
+            existing_request = Friend.objects.filter(
+                (Q(sender=request.user, receiver=receiver) | Q(sender=receiver, receiver=request.user))
+            ).first()
+
+            if existing_request:
+                return JsonResponse({'status': 'error', 'message': 'Đã có lời mời kết bạn'})
+
+            # Tạo lời mời kết bạn mới
+            friend_request = Friend.objects.create(
+                sender=request.user,
+                receiver=receiver,
+                status='pending'
+            )
+
+            # Tạo thông báo cho người nhận
+            notification = Notification.objects.create(
+                sender=request.user,
+                title='Lời mời kết bạn',
+                content=f'{request.user.username} đã gửi cho bạn lời mời kết bạn',
+                type='personal'
+            )
+
+            UserNotification.objects.create(
+                notification=notification,
+                user=receiver,
+                is_read=False
+            )
+
+            return JsonResponse({'status': 'success'})
+
+        except User.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Không tìm thấy người dùng'})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)})
+
+    return JsonResponse({'status': 'error', 'message': 'Phương thức không được hỗ trợ'})
+
+
+@login_required
+def cancel_friend_request(request):
+    if request.method == 'POST':
+        user_id = request.POST.get('user_id')
+        if not user_id:
+            return JsonResponse({'status': 'error', 'message': 'Thiếu thông tin người dùng'})
+
+        try:
+            receiver = User.objects.get(id=user_id)
+
+            # Tìm và xóa lời mời kết bạn
+            friend_request = Friend.objects.filter(
+                sender=request.user,
+                receiver=receiver,
+                status='pending'
+            ).first()
+
+            if friend_request:
+                # Xóa thông báo liên quan
+                notifications = Notification.objects.filter(
+                    sender=request.user,
+                    title='Lời mời kết bạn',
+                    usernotification__user=receiver
+                )
+
+                for notification in notifications:
+                    UserNotification.objects.filter(
+                        notification=notification,
+                        user=receiver
+                    ).delete()
+                    notification.delete()
+
+                friend_request.delete()
+                return JsonResponse({'status': 'success'})
+            else:
+                return JsonResponse({'status': 'error', 'message': 'Không tìm thấy lời mời kết bạn'})
+
+        except User.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Không tìm thấy người dùng'})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)})
+
+    return JsonResponse({'status': 'error', 'message': 'Phương thức không được hỗ trợ'})
+
+
+@login_required
+def respond_friend_request(request):
+    if request.method == 'POST':
+        request_id = request.POST.get('request_id')
+        action = request.POST.get('action')
+
+        if not request_id or not action:
+            return JsonResponse({'status': 'error', 'message': 'Thiếu thông tin'})
+
+        try:
+            friend_request = Friend.objects.get(id=request_id, receiver=request.user, status='pending')
+
+            if action == 'accept':
+                friend_request.status = 'accepted'
+                friend_request.save()
+
+                # Tạo thông báo cho người gửi
+                notification = Notification.objects.create(
+                    sender=request.user,
+                    title='Lời mời kết bạn được chấp nhận',
+                    content=f'{request.user.username} đã chấp nhận lời mời kết bạn của bạn',
+                    type='personal'
+                )
+
+                UserNotification.objects.create(
+                    notification=notification,
+                    user=friend_request.sender,
+                    is_read=False
+                )
+
+            elif action == 'reject':
+                friend_request.status = 'rejected'
+                friend_request.save()
+
+            # Đánh dấu thông báo lời mời kết bạn là đã đọc
+            friend_request_notifications = Notification.objects.filter(
+                sender=friend_request.sender,
+                title='Lời mời kết bạn',
+                usernotification__user=request.user
+            )
+
+            for notification in friend_request_notifications:
+                user_notification = UserNotification.objects.get(
+                    notification=notification,
+                    user=request.user
+                )
+                user_notification.is_read = True
+                user_notification.save()
+
+            return JsonResponse({'status': 'success'})
+
+        except Friend.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Không tìm thấy lời mời kết bạn'})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)})
+
+    return JsonResponse({'status': 'error', 'message': 'Phương thức không được hỗ trợ'})
+
+
+@login_required
+def unfriend(request):
+    if request.method == 'POST':
+        user_id = request.POST.get('user_id')
+        if not user_id:
+            return JsonResponse({'status': 'error', 'message': 'Thiếu thông tin người dùng'})
+
+        try:
+            other_user = User.objects.get(id=user_id)
+
+            # Tìm và xóa mối quan hệ bạn bè
+            friend_relation = Friend.objects.filter(
+                (Q(sender=request.user, receiver=other_user) | Q(sender=other_user, receiver=request.user)),
+                status='accepted'
+            ).first()
+
+            if friend_relation:
+                friend_relation.delete()
+                return JsonResponse({'status': 'success'})
+            else:
+                return JsonResponse({'status': 'error', 'message': 'Không tìm thấy mối quan hệ bạn bè'})
+
+        except User.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Không tìm thấy người dùng'})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)})
+
+    return JsonResponse({'status': 'error', 'message': 'Phương thức không được hỗ trợ'})
+
+
+@login_required
+def get_friend_status(request, user_id):
+    try:
+        other_user = User.objects.get(id=user_id)
+
+        # Kiểm tra trạng thái bạn bè
+        friend_relation = Friend.objects.filter(
+            (Q(sender=request.user, receiver=other_user) | Q(sender=other_user, receiver=request.user))
+        ).first()
+
+        if not friend_relation:
+            return JsonResponse({'status': 'not_friend'})
+
+        if friend_relation.status == 'accepted':
+            return JsonResponse({'status': 'friend'})
+
+        if friend_relation.status == 'pending':
+            if friend_relation.sender == request.user:
+                return JsonResponse({'status': 'request_sent'})
+            else:
+                return JsonResponse({'status': 'request_received', 'request_id': friend_relation.id})
+
+        return JsonResponse({'status': 'unknown'})
+
+    except User.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Không tìm thấy người dùng'})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)})
