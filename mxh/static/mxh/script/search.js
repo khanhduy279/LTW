@@ -41,6 +41,9 @@ document.addEventListener("DOMContentLoaded", () => {
         cancelFriendRequest(userId, e.target)
       } else if (action === "unfriend") {
         unfriend(userId, e.target)
+      } else if (action === "respond-request") {
+        const requestId = e.target.dataset.requestId
+        showRespondModal(requestId)
       }
     }
   })
@@ -56,20 +59,16 @@ function fetchSearchResults(query) {
     .then((data) => {
       const searchResultsPopup = document.getElementById("search-results-popup")
       if (searchResultsPopup) {
-        // Xóa nội dung cũ
         searchResultsPopup.innerHTML = ""
 
         if (data.users && data.users.length > 0) {
-          // Thêm kết quả tìm kiếm
           data.users.forEach((user) => {
             const resultItem = document.createElement("div")
             resultItem.className = "search-result-item"
 
-            // Tạo phần thông tin người dùng
             const userInfo = document.createElement("div")
             userInfo.className = "user-info"
 
-            // Tạo avatar
             const avatar = document.createElement("div")
             avatar.className = "avatar"
 
@@ -86,31 +85,25 @@ function fetchSearchResults(query) {
               avatar.appendChild(defaultAvatar)
             }
 
-            // Tạo tên người dùng
             const userName = document.createElement("div")
             userName.className = "user-name"
             userName.textContent = user.first_name + " " + user.last_name
 
-            // Thêm avatar và tên vào userInfo
             userInfo.appendChild(avatar)
             userInfo.appendChild(userName)
 
-            // Tạo nút kết bạn
             const friendBtn = document.createElement("button")
             friendBtn.className = "friend-btn btn-primary"
             friendBtn.dataset.userId = user.id
             friendBtn.dataset.action = "send-request"
             friendBtn.textContent = "Kết bạn"
 
-            // Thêm userInfo và nút kết bạn vào resultItem
             resultItem.appendChild(userInfo)
             resultItem.appendChild(friendBtn)
 
-            // Thêm resultItem vào searchResultsPopup
             searchResultsPopup.appendChild(resultItem)
           })
 
-          // Thêm nút xem tất cả
           const viewAll = document.createElement("div")
           viewAll.className = "view-all"
           const viewAllLink = document.createElement("a")
@@ -119,7 +112,6 @@ function fetchSearchResults(query) {
           viewAll.appendChild(viewAllLink)
           searchResultsPopup.appendChild(viewAll)
         } else {
-          // Hiển thị không có kết quả
           const noResults = document.createElement("div")
           noResults.className = "no-results"
           noResults.textContent = "Không tìm thấy nhân viên!"
@@ -127,8 +119,6 @@ function fetchSearchResults(query) {
         }
 
         searchResultsPopup.style.display = "block"
-
-        // Cập nhật trạng thái nút kết bạn
         updateFriendButtons()
       }
     })
@@ -257,6 +247,35 @@ function unfriend(userId, button) {
     })
     .catch((error) => {
       console.error("Error unfriending:", error)
+    })
+}
+
+// Phản hồi lời mời kết bạn
+function showRespondModal(requestId) {
+  const confirmed = confirm("Bạn muốn chấp nhận lời mời kết bạn? (OK: Đồng ý, Cancel: Từ chối)")
+  const action = confirmed ? "accept" : "reject"
+
+  const formData = new FormData()
+  formData.append("request_id", requestId)
+  formData.append("action", action)
+
+  fetch("/respond-friend-request/", {
+    method: "POST",
+    body: formData,
+    headers: {
+      "X-CSRFToken": getCookie("csrftoken"),
+    },
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.status === "success") {
+        updateFriendButtons()
+      } else {
+        alert(data.message || "Có lỗi xảy ra")
+      }
+    })
+    .catch((error) => {
+      console.error("Error responding to friend request:", error)
     })
 }
 

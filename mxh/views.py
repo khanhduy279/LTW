@@ -10,7 +10,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.urls import reverse
 from django.utils import timezone
-from django.db.models import Q, Exists, OuterRef, Subquery, Max, F, Count
+from django.db.models import Q, Exists, OuterRef, Subquery, Max, F
 from django.contrib.auth import get_user_model, authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 
@@ -32,22 +32,22 @@ from .models import GroupChat, GroupMember
 
 
 def login_view(request):
-   if request.method == 'POST':
-       username = request.POST.get('username')
-       password = request.POST.get('password')
-       user = authenticate(request, username=username, password=password)
-       if user is not None:
-           login(request, user)
-           if user.is_superuser:
-               return redirect('admin_post_management')  # Chuyển đến trang quản lý bài viết
-           else:
-               return redirect('user_home')
-   return render(request, 'mxh/login/login.html')
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            if user.is_superuser:
+                return redirect('admin_home')
+            else:
+                return redirect('user_home')
+    return render(request, 'mxh/login/login.html')
+
 
 @login_required
 def admin_home(request):
-    # Chuyển hướng đến trang quản lý bài viết
-    return redirect('admin_post_management')
+    return render(request, 'mxh/chat/chat_admin.html')
 
 
 from django.db.models import Exists, OuterRef, Q
@@ -1096,29 +1096,24 @@ def respond_friend_request(request):
                 )
 
             elif action == 'reject':
-                friend_request.status = 'rejected'
-                friend_request.save()
+                # Xoá thông báo lời mời kết bạn
+                friend_request_notifications = Notification.objects.filter(
+                    sender=friend_request.sender,
+                    title='Lời mời kết bạn',
+                    usernotification__user=request.user
+                )
 
-            # Đánh dấu thông báo lời mời kết bạn là đã đọc
-            friend_request_notifications = Notification.objects.filter(
-                sender=friend_request.sender,
-                title='Lời mời kết bạn',
-                usernotification__user=request.user
-            )
+                for notification in friend_request_notifications:
+                    UserNotification.objects.filter(
+                        notification=notification,
+                        user=request.user
+                    ).delete()
+                    notification.delete()
 
-            for notification in friend_request_notifications:
-                user_notification = UserNotification.objects.filter(
-                    notification=notification,
-                    user=request.user
-                ).first()
-                if user_notification:
-                    user_notification.is_read = True
-                    user_notification.save()
+                # Xoá lời mời kết bạn
+                friend_request.delete()
 
-            return JsonResponse({
-                'status': 'success',
-                'sender_id': friend_request.sender.id
-            })
+            return JsonResponse({'status': 'success'})
 
         except Friend.DoesNotExist:
             return JsonResponse({'status': 'error', 'message': 'Không tìm thấy lời mời kết bạn'})
@@ -1126,6 +1121,7 @@ def respond_friend_request(request):
             return JsonResponse({'status': 'error', 'message': str(e)})
 
     return JsonResponse({'status': 'error', 'message': 'Phương thức không được hỗ trợ'})
+
 
 
 @login_required
